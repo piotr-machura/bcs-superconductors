@@ -1,5 +1,5 @@
-import package1.Test1;
-import package2.Test;
+import package1.*;
+import package2.*;
 
 /**
  * The class Main
@@ -17,5 +17,6 @@ public class Main
 
         Test1 obiekTest1 = new Test1(4, 12);
         System.out.println(obiekTest1.returnVectorLength());
+        System.out.println(Test2.pierwistek(81));
     }
 }
