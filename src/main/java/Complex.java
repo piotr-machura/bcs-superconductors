@@ -10,7 +10,7 @@ public class Complex {
     /* The imaginary part */
     private double im;
     /* The sqrt(-1) */
-    public static final Complex i = new Complex(0, 1);
+    public static final Complex I = new Complex(0, 1);
 
     /* CONSTRUCTORS */
     /* ------------ */
