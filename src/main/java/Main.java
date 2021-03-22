@@ -11,18 +11,20 @@ import org.jfree.data.xy.XYSeriesCollection;
  **/
 public class Main {
     public static void main(String[] args) {
-        int samples = 1000;
+        int samples = 6845;
         double[] signal = new double[samples];
         double[] freq = new double[samples];
         double[] time = new double[samples];
         // First we define a simple signal containing an addition of two sine waves. One
         // with a frequency of 40 Hz and one with a frequency of 90 Hz.
-        // Let domain to be interval <0, 0.5> and use N samples
+        // Let domain to be interval <a, b> and use N samples
+        double a=-3, b=2;
         for (int i = 0; i < samples; i++) {
-            double t = (double) i * (0.5 / samples);
+            double t = a + 2 * (double) i * ((b-a) / samples);
             time[i] = t; // Time is just time
             freq[i] = i; // Sampling rate is frequency
-            signal[i] = Math.sin(40 * 2 * Math.PI * t) + 0.5 * Math.sin(90 * 2 * Math.PI * t);
+            signal[i] = Math.sin(40 * 2 * Math.PI * t) + 0.5 * Math.sin(90 * 2 * Math.PI * t) + 2 * Math.cos(100 * 2 * Math.PI * t);
+            //signal[i]= Math.exp(-2*Math.pow(t, 2)); 
         }
         // The signal will be changed by the FFT but we want to plot it later
         double[] function = signal.clone();
@@ -42,16 +44,18 @@ public class Main {
         XYSeries fftSeries = new XYSeries("FFT");
         XYSeries initialSeries = new XYSeries("function");
         for (int i = 0; i < result.length; i++) {
-            // Frequency is doubled since `result` is half the size of initial signal
-            fftSeries.add(freq[i] * 2, result[i]);
+        	// Because of unknown reason frequency has to be scaled by	1/(2*domain_size)
+            fftSeries.add(freq[i] * 1/(2*(b-a)), result[i]);
             initialSeries.add(time[i], function[i]);
         }
+      
 
         // Display the graphs
         ChartFrame frame1 = new ChartFrame("XYLine Chart",
                 ChartFactory.createXYLineChart("FFT", "frequency", "amplitude", new XYSeriesCollection(fftSeries)));
         frame1.setDefaultCloseOperation(ChartFrame.DISPOSE_ON_CLOSE);
         frame1.setLocationRelativeTo(null);
+        staticFunctions.PlotFunctions.setMeaningfulXAxisRange(frame1,a,b);
         frame1.setVisible(true);
         frame1.setSize(500, 400);
         ChartFrame frame2 = new ChartFrame("XYLine Chart",

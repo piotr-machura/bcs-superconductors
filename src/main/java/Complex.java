@@ -263,7 +263,7 @@ public class Complex {
 
         // Multiply the complexes by freq*I n times, where freq is the sampling rate aka
         // the iterator of the loop I THINK (it may be twice that or half that idk)
-        // FIXME: this step may be (and likely is) wrong as fuck
+        // FIXME: this step may be (and likely is) wrong as fuck XD
         for (int f = 0; f < signalFt.length; f++) {
             for (int __ = 0; __ < n; __++) {
                 signalFt[f] = signalFt[f].times(f).times(Complex.I);
