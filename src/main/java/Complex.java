@@ -1,7 +1,9 @@
+import org.jtransforms.fft.DoubleFFT_1D;
+
 /**
  * The class Complex.
  *
- * @Author Bartosz Biernacki, Piotr Machura
+ * @Author Piotr Machura
  **/
 public class Complex {
 
@@ -9,7 +11,7 @@ public class Complex {
     private double re;
     /* The imaginary part */
     private double im;
-    /* The sqrt(-1) */
+    /* The imaginary unit */
     public static final Complex I = new Complex(0, 1);
 
     /* CONSTRUCTORS */
@@ -78,7 +80,7 @@ public class Complex {
      *
      * @param re the real part
      */
-    public void setRe(double re) {
+    public void setRe(final double re) {
         this.re = re;
     }
 
@@ -96,7 +98,7 @@ public class Complex {
      *
      * @param im the imaginary part
      */
-    public void setIm(double im) {
+    public void setIm(final double im) {
         this.im = im;
     }
 
@@ -109,7 +111,7 @@ public class Complex {
      * @param z the Complex to add
      * @return the sum of this and z
      */
-    public Complex plus(Complex z) {
+    public Complex plus(final Complex z) {
         return new Complex(this.re + z.re, this.im + z.im);
     }
 
@@ -119,7 +121,7 @@ public class Complex {
      * @param z the Complex to subtract
      * @return the difference of this and z
      */
-    public Complex minus(Complex z) {
+    public Complex minus(final Complex z) {
         return new Complex(this.re - z.re, this.im - z.im);
     }
 
@@ -129,8 +131,18 @@ public class Complex {
      * @param z the Complex to multiply by
      * @return the product of this and z
      */
-    public Complex times(Complex z) {
+    public Complex times(final Complex z) {
         return new Complex(this.re * z.re - this.im * z.im, this.re * z.im + this.im * z.re);
+    }
+
+    /**
+     * Scalar complex multiplication.
+     *
+     * @param a the real number to multiply by
+     * @return the product of this and a
+     **/
+    public Complex times(final double a) {
+        return new Complex(a * this.re, a * this.im);
     }
 
     /**
@@ -140,7 +152,7 @@ public class Complex {
      * @return this divided by z
      * @throws ArithmeticException for division by 0
      */
-    public Complex div(Complex z) throws ArithmeticException {
+    public Complex div(final Complex z) throws ArithmeticException {
         if ((z.re == 0) && (z.im == 0)) {
             throw new ArithmeticException("Cannot divide by 0.");
         }
@@ -151,6 +163,16 @@ public class Complex {
         imag /= (z.re * z.re + z.im * z.im);
 
         return new Complex(real, imag);
+    }
+
+    /**
+     * Scalar complex division.
+     *
+     * @param a the real number to divide by
+     * @return this divided by a
+     **/
+    public Complex div(final double a) {
+        return new Complex(this.re / a, this.im / a);
     }
 
     /**
@@ -208,9 +230,12 @@ public class Complex {
         } else if (this.re > 0 && this.im < 0) {
             return Math.atan(x / y) + 1.5 * Math.PI;
         } else {
-            throw new ArithmeticException("Phase undefined for point " + this);
+            throw new ArithmeticException("Phase undefined for " + this);
         }
     }
+
+    /* THE MAIN DISH */
+    /* ------------- */
 
     /**
      * The nth derivative of complex signal.
@@ -219,8 +244,44 @@ public class Complex {
      * @param n      the derivative number
      * @return the nth derivative as a complex signal
      **/
-    public static Complex[] nthDerivative(Complex[] signal, int n) {
-        // TODO: Implement this
-        return null;
+    public static Complex[] nthDerivative(final Complex[] signal, final int n) {
+        DoubleFFT_1D fft = new DoubleFFT_1D(2 * signal.length);
+
+        // Turn the complexes into doubles and fourier transform
+        double[] dSignal = new double[2 * signal.length];
+        for (int i = 0; i < signal.length; i++) {
+            dSignal[2 * i] = signal[i].re;
+            dSignal[2 * i + 1] = signal[i].im;
+        }
+        fft.complexForward(dSignal);
+
+        // Turn the signal back to Complexes
+        Complex[] signalFt = new Complex[signal.length];
+        for (int i = 0; i < signalFt.length; i++) {
+            signalFt[i] = new Complex(dSignal[2 * i], dSignal[2 * i + 1]);
+        }
+
+        // Multiply the complexes by freq*I n times, where freq is the sampling rate aka
+        // the iterator of the loop I THINK (it may be twice that or half that idk)
+        // FIXME: this step may be (and likely is) wrong as fuck
+        for (int f = 0; f < signalFt.length; f++) {
+            for (int __ = 0; __ < n; __++) {
+                signalFt[f] = signalFt[f].times(f).times(Complex.I);
+            }
+        }
+
+        // Turn the signal back into doubles and revert the fft
+        // FIXME: Should this be scaled by that last boolean? idk
+        for (int i = 0; i < signalFt.length; i++) {
+            dSignal[2 * i] = signalFt[i].re;
+            dSignal[2 * i + 1] = signalFt[i].im;
+        }
+        fft.complexInverse(dSignal, false);
+
+        // Turn signal into array of complexes and return
+        for (int i = 0; i < signalFt.length; i++) {
+            signalFt[i] = new Complex(dSignal[2 * i], dSignal[2 * i + 1]);
+        }
+        return signalFt;
     }
 }
