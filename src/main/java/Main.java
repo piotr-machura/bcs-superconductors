@@ -22,26 +22,26 @@ public class Main {
         // First we define a simple signal containing an addition of two sine waves. One
         // with a frequency of 40 Hz and one with a frequency of 90 Hz.
         // Let domain to be interval <a, b> and use N samples
-<<<<<<< HEAD
+
         double a=0, b=0.2;
-=======
-        double a = -3, b = 2;
->>>>>>> branch 'master' of https://github.com/piotr-machura/bcs-superconductors.git
+
+
+
         for (int i = 0; i < samples; i++) {
             double t = a + 2 * (double) i * ((b - a) / samples);
             time[i] = t; // Time is just time
             freq[i] = i; // Sampling rate is frequency
-<<<<<<< HEAD
+
             signal[i] = Math.sin(40 * 2 * Math.PI * t) + 0.5 * Math.sin(90 * 2 * Math.PI * t) + 2 * Math.cos(100 * 2 * Math.PI * t);
             testSignal[2*i] = Math.sin(40 * 2 * Math.PI * t) + 0.5 * Math.sin(90 * 2 * Math.PI * t) + 2 * Math.cos(100 * 2 * Math.PI * t);
             testSignal[2*i +1] = 0;
             //signal[i]= Math.exp(-2*Math.pow(t, 2)); 
-=======
+
             signal[i] = Math.sin(40 * 2 * Math.PI * t) + 0.5 * Math.sin(90 * 2 * Math.PI * t)
                     + 2 * Math.cos(100 * 2 * Math.PI * t);
             // signal[i]= Math.exp(-2*Math.pow(t, 2));
->>>>>>> branch 'master' of https://github.com/piotr-machura/bcs-superconductors.git
         }
+
         // The signal will be changed by the FFT but we want to plot it later
         double[] function = signal.clone();
 
@@ -74,25 +74,23 @@ public class Main {
         // Construct the graph series
         XYSeries fftSeries = new XYSeries("FFT");
         XYSeries initialSeries = new XYSeries("function");
-        for (int i = 0; i < result.length; i++) {
+        for (int s = 0; s < result.length; s++) {
             // Because of unknown reason frequency has to be scaled by 1/(2*domain_size)
-            fftSeries.add(freq[i] * 1 / (2 * (b - a)), result[i]);
-            initialSeries.add(time[i], function[i]);
+            fftSeries.add(freq[s] * 1 / (2 * (b - a)), result[s]);
+            initialSeries.add(time[s], function[s]);
         }
-<<<<<<< HEAD
         
         XYSeries testFftRealSeries = new XYSeries("Test_real");
         XYSeries testFftImaginarySeries = new XYSeries("Test_real");
-        for (int i = 0; i < realPartOfTransformedTestSignal.length; i++) 
+        for (int s = 0; s < realPartOfTransformedTestSignal.length; s++) 
         {
         	// Because of unknown reason frequency has to be scaled by	1/(2*domain_size)
-            testFftRealSeries.add(freq[i] * 1/(2*(b-a)), realPartOfTransformedTestSignal[i]);
-            testFftImaginarySeries.add(freq[i] * 1/(2*(b-a)), imaginaryPartOfTransformedTestSignal[i]);
+            testFftRealSeries.add(freq[s] * 1/(2*(b-a)), realPartOfTransformedTestSignal[s]);
+            testFftImaginarySeries.add(freq[s] * 1/(2*(b-a)), imaginaryPartOfTransformedTestSignal[s]);
         }
         
      
-=======
->>>>>>> branch 'master' of https://github.com/piotr-machura/bcs-superconductors.git
+
 
         // Display the graphs
         ChartFrame frame1 = new ChartFrame("XYLine Chart",
@@ -123,5 +121,5 @@ public class Main {
         //staticFunctions.PlotFunctions.setMeaningfulXAxisRange(frame3,a,b);
         frame4.setVisible(true);
         frame4.setSize(500, 400);
-    }
+        }
 }
