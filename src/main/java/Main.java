@@ -1,8 +1,7 @@
 import org.jtransforms.fft.DoubleFFT_1D;
-import org.jtransforms.utils.IOUtils;
 import org.jfree.chart.ChartFrame;
 
-import java.nio.channels.NonWritableChannelException;
+
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.data.xy.XYSeries;
