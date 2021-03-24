@@ -14,7 +14,7 @@ import org.jfree.data.xy.XYSeriesCollection;
  **/
 public class Main {
     public static void main(String[] args) {
-        int samples = 1000;
+        int samples = 1024;
         double[] signal = new double[samples];
         double[] freq = new double[samples];
         double[] time = new double[samples];
@@ -111,14 +111,14 @@ public class Main {
                 ChartFactory.createXYLineChart("Test_FFT_real", "frequency", "amplitude", new XYSeriesCollection(testFftRealSeries)));
         frame3.setDefaultCloseOperation(ChartFrame.DISPOSE_ON_CLOSE);
         frame3.setLocationRelativeTo(null);
-        //staticFunctions.PlotFunctions.setMeaningfulXAxisRange(frame3,a,b);
+        staticFunctions.PlotFunctions.setMeaningfulXAxisRange(frame3,a,b);
         frame3.setVisible(true);
         frame3.setSize(500, 400);
         ChartFrame frame4 = new ChartFrame("XYLine Chart",
                 ChartFactory.createXYLineChart("Test_FFT_imaginary", "frequency", "amplitude", new XYSeriesCollection(testFftImaginarySeries)));
         frame4.setDefaultCloseOperation(ChartFrame.DISPOSE_ON_CLOSE);
         frame4.setLocationRelativeTo(null);
-        //staticFunctions.PlotFunctions.setMeaningfulXAxisRange(frame3,a,b);
+        staticFunctions.PlotFunctions.setMeaningfulXAxisRange(frame3,a,b);
         frame4.setVisible(true);
         frame4.setSize(500, 400);
         }

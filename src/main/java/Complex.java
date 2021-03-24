@@ -246,16 +246,15 @@ public class Complex {
      * @param n      the derivative number
      * @return the nth derivative as a complex signal
      **/
-    public static Complex[] nthDerivative(final Complex[] signal, final int n) {
-        DoubleFFT_1D fft = new DoubleFFT_1D(2 * signal.length);
-
+    public static Complex[] nthDerivative(final Complex[] signal, final int n, double a, double b) 
+    {
         // Turn the complexes into doubles and fourier transform
         double[] dSignal = new double[2 * signal.length ];
         for (int i = 0; i < signal.length; i++) {
             dSignal[2 * i] = signal[i].re;
             dSignal[2 * i + 1] = signal[i].im;
         }
-        System.out.println(dSignal.length);
+        DoubleFFT_1D fft = new DoubleFFT_1D(dSignal.length/2);
         fft.complexForward(dSignal);
 
         // Turn the signal back to Complexes
@@ -267,22 +266,41 @@ public class Complex {
         // Multiply the complexes by freq*I n times, where freq is the sampling rate aka
         // the iterator of the loop I THINK (it may be twice that or half that idk)
         // FIXME: this step may be (and likely is) wrong as fuck XD
-        for (int f = 0; f < ftSignal.length; f++) {
-            for (int __ = 0; __ < n; __++) {
-                ftSignal[f] = ftSignal[f].times(f).times(Complex.I);
-            }
+        int nx = ftSignal.length;
+        double DeltaX = (double) (b-a)/(nx -1);
+        Complex[] p =new Complex[ftSignal.length];
+        
+        for(int m=0; m<=ftSignal.length/2; m++)
+        {
+        	p[m]= new Complex((2*Math.PI*m)/(nx * DeltaX), 0);
+        }
+        for(int m=ftSignal.length+1; m<ftSignal.length; m++)
+        {
+        	p[m]= new Complex((2*Math.PI*(m-nx))/(nx * DeltaX), 0);
+        }
+        
+        
+        for (int m = 0; m < ftSignal.length; m++) 
+        {
+        	for (int i=1; i<=n;i++)
+        	{
+        		ftSignal[m] = ftSignal[m].times(I).times(p[m]);
+        	}   
         }
 
         // Turn the signal back into doubles and revert the fft
-        // FIXME: Should this be scaled by that last boolean? idk
-        for (int i = 0; i < ftSignal.length; i++) {
+        // FIXME: Should this be scaled by that last boolean? YES, last bool=TRUE
+        for (int i = 0; i < ftSignal.length; i++) 
+        {
             dSignal[2 * i] = ftSignal[i].re;
             dSignal[2 * i + 1] = ftSignal[i].im;
         }
-        fft.complexInverse(dSignal, false);
+        
+        fft.complexInverse(dSignal, true);
 
         // Turn signal into array of complexes and return
-        for (int i = 0; i < ftSignal.length; i++) {
+        for (int i = 0; i < ftSignal.length; i++) 
+        {
             ftSignal[i] = new Complex(dSignal[2 * i], dSignal[2 * i + 1]);
         }
         return ftSignal;
