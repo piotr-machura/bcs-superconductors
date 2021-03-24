@@ -259,32 +259,32 @@ public class Complex {
         fft.complexForward(dSignal);
 
         // Turn the signal back to Complexes
-        Complex[] signalFt = new Complex[signal.length];
-        for (int i = 0; i < signalFt.length; i++) {
-            signalFt[i] = new Complex(dSignal[2 * i], dSignal[2 * i + 1]);
+        Complex[] ftSignal = new Complex[signal.length];
+        for (int i = 0; i < ftSignal.length; i++) {
+            ftSignal[i] = new Complex(dSignal[2 * i], dSignal[2 * i + 1]);
         }
 
         // Multiply the complexes by freq*I n times, where freq is the sampling rate aka
         // the iterator of the loop I THINK (it may be twice that or half that idk)
         // FIXME: this step may be (and likely is) wrong as fuck XD
-        for (int f = 0; f < signalFt.length; f++) {
+        for (int f = 0; f < ftSignal.length; f++) {
             for (int __ = 0; __ < n; __++) {
-                signalFt[f] = signalFt[f].times(f).times(Complex.I);
+                ftSignal[f] = ftSignal[f].times(f).times(Complex.I);
             }
         }
 
         // Turn the signal back into doubles and revert the fft
         // FIXME: Should this be scaled by that last boolean? idk
-        for (int i = 0; i < signalFt.length; i++) {
-            dSignal[2 * i] = signalFt[i].re;
-            dSignal[2 * i + 1] = signalFt[i].im;
+        for (int i = 0; i < ftSignal.length; i++) {
+            dSignal[2 * i] = ftSignal[i].re;
+            dSignal[2 * i + 1] = ftSignal[i].im;
         }
         fft.complexInverse(dSignal, false);
 
         // Turn signal into array of complexes and return
-        for (int i = 0; i < signalFt.length; i++) {
-            signalFt[i] = new Complex(dSignal[2 * i], dSignal[2 * i + 1]);
+        for (int i = 0; i < ftSignal.length; i++) {
+            ftSignal[i] = new Complex(dSignal[2 * i], dSignal[2 * i + 1]);
         }
-        return signalFt;
+        return ftSignal;
     }
 }
