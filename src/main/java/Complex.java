@@ -47,6 +47,8 @@ public class Complex {
         this.re = 0;
         this.im = 0;
     }
+    
+   
 
     /**
      * String representation.
@@ -248,11 +250,12 @@ public class Complex {
         DoubleFFT_1D fft = new DoubleFFT_1D(2 * signal.length);
 
         // Turn the complexes into doubles and fourier transform
-        double[] dSignal = new double[2 * signal.length];
+        double[] dSignal = new double[2 * signal.length ];
         for (int i = 0; i < signal.length; i++) {
             dSignal[2 * i] = signal[i].re;
             dSignal[2 * i + 1] = signal[i].im;
         }
+        System.out.println(dSignal.length);
         fft.complexForward(dSignal);
 
         // Turn the signal back to Complexes

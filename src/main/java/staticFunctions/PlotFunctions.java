@@ -38,14 +38,7 @@ public class PlotFunctions
 		B = B/2;
 		
 		double A = (-1)*(B/10) ;
-		
-		
-		
-		/*
-		System.out.println("A = " + A);
-		System.out.println("B = " + B);
-		*/
-		
+
 		frame1.getChartPanel().getChart().getXYPlot().getDomainAxis().setRange(A, B);
 	}
 }
