@@ -71,6 +71,15 @@ public class Main {
             realPartOfTransformedTestSignal[s] = testSignal[2*s] / result.length;
             imaginaryPartOfTransformedTestSignal[s]=  testSignal[2*s +1] / result.length;
         }
+        
+        
+        double[] realPartOfTransformedComplexTestSignal = new double[complexTestSignal.length/2];
+        double[] imaginaryPartOfTransformedComplexTestSignal = new double[complexTestSignal.length/2];
+        for (int s = 0; s < complexTestSignal.length/2; s++) 
+        {
+        	realPartOfTransformedComplexTestSignal[s] = complexTestSignal[2*s].div(complexTestSignal.length).getRe();
+        	imaginaryPartOfTransformedComplexTestSignal[s]=  complexTestSignal[2*s].div(complexTestSignal.length).getIm();
+        }
 
         
         
@@ -84,12 +93,21 @@ public class Main {
         }
         
         XYSeries testFftRealSeries = new XYSeries("Test_real");
-        XYSeries testFftImaginarySeries = new XYSeries("Test_real");
+        XYSeries testFftImaginarySeries = new XYSeries("Test_imaginary");
         for (int s = 0; s < realPartOfTransformedTestSignal.length; s++) 
         {
         	// Because of unknown reason frequency has to be scaled by	1/(2*domain_size)
             testFftRealSeries.add(freq[s] * 1/(2*(b-a)), realPartOfTransformedTestSignal[s]);
             testFftImaginarySeries.add(freq[s] * 1/(2*(b-a)), imaginaryPartOfTransformedTestSignal[s]);
+        }
+        
+        XYSeries derivativeFftRealSeries = new XYSeries("Derivative_test_real");
+        XYSeries derivativeFftImaginarySeries = new XYSeries("Derivative_test_imaginary");
+        for (int s = 0; s < realPartOfTransformedComplexTestSignal.length; s++) 
+        {
+        	// Because of unknown reason frequency has to be scaled by	1/(2*domain_size)
+            derivativeFftRealSeries.add(freq[s] * 1/(2*(b-a)), realPartOfTransformedComplexTestSignal[s]);
+            derivativeFftImaginarySeries.add(freq[s] * 1/(2*(b-a)), imaginaryPartOfTransformedComplexTestSignal[s]);
         }
         
      
@@ -124,5 +142,22 @@ public class Main {
         staticFunctions.PlotFunctions.setMeaningfulXAxisRange(frame3,a,b);
         frame4.setVisible(true);
         frame4.setSize(500, 400);
+        
+        ChartFrame frame5 = new ChartFrame("XYLine Chart",
+                ChartFactory.createXYLineChart("derivative_FFT_real", "frequency", "amplitude", new XYSeriesCollection(derivativeFftRealSeries)));
+        frame5.setDefaultCloseOperation(ChartFrame.DISPOSE_ON_CLOSE);
+        frame5.setLocationRelativeTo(null);
+        staticFunctions.PlotFunctions.setMeaningfulXAxisRange(frame5,a,b);
+        frame5.setVisible(true);
+        frame5.setSize(500, 400);
+        ChartFrame frame6 = new ChartFrame("XYLine Chart",
+                ChartFactory.createXYLineChart("derivative_FFT_imaginary", "frequency", "amplitude", new XYSeriesCollection(derivativeFftImaginarySeries)));
+        frame6.setDefaultCloseOperation(ChartFrame.DISPOSE_ON_CLOSE);
+        frame6.setLocationRelativeTo(null);
+        staticFunctions.PlotFunctions.setMeaningfulXAxisRange(frame6,a,b);
+        frame6.setVisible(true);
+        frame6.setSize(500, 400);
+        
+        
         }
 }
