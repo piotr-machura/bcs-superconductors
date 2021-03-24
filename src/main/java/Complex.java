@@ -274,7 +274,7 @@ public class Complex {
         {
         	p[m]= new Complex((2*Math.PI*m)/(nx * DeltaX), 0);
         }
-        for(int m=ftSignal.length+1; m<ftSignal.length; m++)
+        for(int m=ftSignal.length/2 + 1; m<ftSignal.length; m++)
         {
         	p[m]= new Complex((2*Math.PI*(m-nx))/(nx * DeltaX), 0);
         }

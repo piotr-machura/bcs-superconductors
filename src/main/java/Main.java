@@ -19,6 +19,7 @@ public class Main {
         double[] freq = new double[samples];
         double[] time = new double[samples];
         double[] testSignal = new double [2*samples];
+        Complex[] complexTestSignal = new Complex[samples];
         // First we define a simple signal containing an addition of two sine waves. One
         // with a frequency of 40 Hz and one with a frequency of 90 Hz.
         // Let domain to be interval <a, b> and use N samples
@@ -35,6 +36,7 @@ public class Main {
             signal[i] = Math.sin(40 * 2 * Math.PI * t) + 0.5 * Math.sin(90 * 2 * Math.PI * t) + 2 * Math.cos(100 * 2 * Math.PI * t);
             testSignal[2*i] = Math.sin(40 * 2 * Math.PI * t) + 0.5 * Math.sin(90 * 2 * Math.PI * t) + 2 * Math.cos(100 * 2 * Math.PI * t);
             testSignal[2*i +1] = 0;
+            complexTestSignal[i] = new Complex(Math.sin(40 * 2 * Math.PI * t), Math.sin(60 * 2 * Math.PI * t));
             //signal[i]= Math.exp(-2*Math.pow(t, 2)); 
 
             signal[i] = Math.sin(40 * 2 * Math.PI * t) + 0.5 * Math.sin(90 * 2 * Math.PI * t)
@@ -51,6 +53,7 @@ public class Main {
         DoubleFFT_1D dFFTComplex = new DoubleFFT_1D(testSignal.length/2);
         dFFTComplex.complexForward(testSignal);
         
+        complexTestSignal = Complex.nthDerivative(complexTestSignal, 1, a, b);
         
         // Get the absolute value
         double[] result = new double[signal.length / 2];
