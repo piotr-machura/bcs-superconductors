@@ -24,7 +24,7 @@ public class Main {
         // with a frequency of 40 Hz and one with a frequency of 90 Hz.
         // Let domain to be interval <a, b> and use N samples
 
-        double a=0, b=0.2;
+        double a=-2, b=0.2;
 
 
 
@@ -36,12 +36,14 @@ public class Main {
             signal[i] = Math.sin(40 * 2 * Math.PI * t) + 0.5 * Math.sin(90 * 2 * Math.PI * t) + 2 * Math.cos(100 * 2 * Math.PI * t);
             testSignal[2*i] = Math.sin(40 * 2 * Math.PI * t) + 0.5 * Math.sin(90 * 2 * Math.PI * t) + 2 * Math.cos(100 * 2 * Math.PI * t);
             testSignal[2*i +1] = 0;
-            complexTestSignal[i] = new Complex(Math.sin(40 * 2 * Math.PI * t), Math.sin(60 * 2 * Math.PI * t));
+            
             //signal[i]= Math.exp(-2*Math.pow(t, 2)); 
 
             signal[i] = Math.sin(40 * 2 * Math.PI * t) + 0.5 * Math.sin(90 * 2 * Math.PI * t)
                     + 2 * Math.cos(100 * 2 * Math.PI * t);
             // signal[i]= Math.exp(-2*Math.pow(t, 2));
+            
+            complexTestSignal[i] = new Complex(Math.exp(-2*t*t), 0);
         }
 
         // The signal will be changed by the FFT but we want to plot it later
