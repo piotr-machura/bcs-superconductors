@@ -1,5 +1,9 @@
 import org.jtransforms.fft.DoubleFFT_1D;
+
+
+
 import org.jfree.chart.ChartFrame;
+
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.data.xy.XYSeries;
@@ -149,7 +153,8 @@ public class Main {
         frame6.setVisible(true);
         frame6.setSize(500, 400);
         
-        //System.out.println("TAK");
-
+       
+       
+       
     }
 }
