@@ -1,6 +1,6 @@
 import org.jtransforms.fft.DoubleFFT_1D;
 
-
+import staticFunctions.FixedPoint;
 
 import org.jfree.chart.ChartFrame;
 
@@ -153,8 +153,8 @@ public class Main {
         frame6.setVisible(true);
         frame6.setSize(500, 400);
         
-       
-       
+       double ans = FixedPoint.findRoot(0.000001);
+       System.out.println(ans);
        
     }
 }
