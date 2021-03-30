@@ -7,59 +7,70 @@ import java.util.ArrayList;
  * @Author Bartosz Biernacki, Piotr Machura
  **/
 public class Main {
+
     // The calculation parameters
-    static double mu = 0, u = 1, v = 1, t = 0, g = 1;
+    static double mu = 0, t = 0, g = 1;
     // 'Close enough' to a zero (name 'epsilon' is taken)
     static double small = 1e-9;
 
-    public static double epsilonK(double k) {
+    static double epsilonK(double k) {
         // Who cares about Plancks constant (or mass)?
         return k * k / 2;
     }
 
-    public static double deltaFromE(double e, double k) {
-        // TODO: Implement this
-        return 0;
+    static double uK(double k, double ek) {
+        return Math.sqrt(1 / 2 * (1 + (epsilonK(k) - mu) / ek));
     }
 
-    public static double eFromDelta(double delta, double k) {
+    static double vK(double k, double ek) {
+        return Math.sqrt(1 / 2 * (1 + (epsilonK(k) + mu) / ek));
+    }
+
+    static double calcDelta(ArrayList<Double> ks, ArrayList<Double> eks) {
+        // Arrays are needed for the summing
+        double sum = 0;
+        for (int i = 0; i < ks.size(); i++) {
+            double k = ks.get(i);
+            double ek = eks.get(i);
+            sum += uK(k, ek) * vK(k, ek) * 1 / 2 * (fermiDirac(ek) - fermiDirac(-ek));
+        }
+        return g * g * sum;
+    }
+
+    static double eK(double delta, double k) {
+        // The formula as stated (I hope)
         return Math.sqrt(delta * delta + (epsilonK(k) - mu) * (epsilonK(k) - mu));
     }
 
-    public static double fermiDirac(double e) {
+    static double fermiDirac(double e) {
         // Who cares about Boltzmann constant?
         double denominator = Math.exp((e - mu) / t) + 1;
         return 1 / denominator;
     }
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
         System.out.println(FixedPoint.findRoot(0.0001));
-        // Looking for this
-        ArrayList<Double> deltas = new ArrayList<Double>();
-        ArrayList<Double> energies = new ArrayList<Double>();
-        // We may need those as well idk
-        ArrayList<Double> ks = new ArrayList<Double>();
-        double guessE = 1;
-        for (double k = 0; k < 100; k += 0.1) {
-            double delta;
-            double deltaPrev = 1e20; // Not to trigger the stop condition immediately
-            double e = guessE;
-            while (true) {
-                delta = deltaFromE(e, k);
-                e = eFromDelta(delta, k);
-                if (Math.abs(deltaPrev - delta) < small) {
-                    break;
-                }
+        // Take a guess
+        double delta = 1;
+        double deltaPrev = delta + 1e20; // Not to trigger the stop condition immediately
+        while (true) {
+            // We need those for the delta
+            ArrayList<Double> ks = new ArrayList<Double>();
+            ArrayList<Double> eks = new ArrayList<Double>();
+            // calculate the ek's and k's
+            for (double k = 0; k < 10; k += 0.1) {
+                ks.add(k);
+                eks.add(eK(delta, k));
+            }
+            // Get our new delta
+            delta = calcDelta(eks, ks);
+            if (Math.abs(deltaPrev - delta) < small) {
+                // We have converged - done
+                break;
+            } else {
+                // Keep going
                 deltaPrev = delta;
             }
-            // We have converged - add the solutions to solution lists
-            energies.add(e);
-            // This is wrong (?) since there is a sum over k in the delta
-            deltas.add(delta);
-            // We probably want the ks for further use as well
-            ks.add(k);
         }
-        // We now have deltas and energies stored in our ArrayLists for further
-        // calculations, graphing and whatnot
     }
 }
