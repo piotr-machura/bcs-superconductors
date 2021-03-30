@@ -153,7 +153,7 @@ public class Main {
         frame6.setVisible(true);
         frame6.setSize(500, 400);
         
-       double ans = FixedPoint.findRoot(0.000001);
+       double ans = FixedPoint.findRoot(0.00001);
        System.out.println(ans);
        
     }
