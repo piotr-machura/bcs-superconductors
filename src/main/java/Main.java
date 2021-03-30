@@ -148,6 +148,8 @@ public class Main {
         staticFunctions.PlotFunctions.setMeaningfulXAxisRange(frame6, a, b);
         frame6.setVisible(true);
         frame6.setSize(500, 400);
+        
+        //System.out.println("TAK");
 
     }
 }
