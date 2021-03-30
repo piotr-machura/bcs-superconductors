@@ -1,4 +1,5 @@
 import staticFunctions.FixedPoint;
+import java.util.ArrayList;
 
 /**
  * The class Main
@@ -8,17 +9,21 @@ import staticFunctions.FixedPoint;
 public class Main {
     // The calculation parameters
     static double mu = 0, u = 1, v = 1, t = 0, g = 1;
-    // 'CLose enough' to a zero
-    static double epsilon = 1e-9;
+    // 'Close enough' to a zero (name 'epsilon' is taken)
+    static double small = 1e-9;
 
-    public static double deltaFromE(double e) {
+    public static double epsilonK(double k) {
+        // Who cares about Plancks constant (or mass)?
+        return k * k / 2;
+    }
+
+    public static double deltaFromE(double e, double k) {
         // TODO: Implement this
         return 0;
     }
 
-    public static double eFromDelta(double delta) {
-        // TODO: Implement this
-        return 0;
+    public static double eFromDelta(double delta, double k) {
+        return Math.sqrt(delta * delta + (epsilonK(k) - mu) * (epsilonK(k) - mu));
     }
 
     public static double fermiDirac(double e) {
@@ -30,19 +35,31 @@ public class Main {
     public static void main(String[] args) {
         System.out.println(FixedPoint.findRoot(0.0001));
         // Looking for this
-        double e = 1;
-        double delta;
-        // This is large not to trigger the stop condition immediatly
-        double deltaPrev = 1e20;
-        while (true) {
-            delta = deltaFromE(e);
-            if (Math.abs(deltaPrev - delta) < epsilon) {
-                break;
-            } else {
-                e = eFromDelta(delta);
+        ArrayList<Double> deltas = new ArrayList<Double>();
+        ArrayList<Double> energies = new ArrayList<Double>();
+        // We may need those as well idk
+        ArrayList<Double> ks = new ArrayList<Double>();
+        double guessE = 1;
+        for (double k = 0; k < 100; k += 0.1) {
+            double delta;
+            double deltaPrev = 1e20; // Not to trigger the stop condition immediately
+            double e = guessE;
+            while (true) {
+                delta = deltaFromE(e, k);
+                e = eFromDelta(delta, k);
+                if (Math.abs(deltaPrev - delta) < small) {
+                    break;
+                }
                 deltaPrev = delta;
             }
+            // We have converged - add the solutions to solution lists
+            energies.add(e);
+            // This is wrong (?) since there is a sum over k in the delta
+            deltas.add(delta);
+            // We probably want the ks for further use as well
+            ks.add(k);
         }
-        System.out.println("The delta is " + delta);
+        // We now have deltas and energies stored in our ArrayLists for further
+        // calculations, graphing and whatnot
     }
 }
