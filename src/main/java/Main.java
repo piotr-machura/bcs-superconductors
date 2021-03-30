@@ -4,14 +4,18 @@ import java.util.ArrayList;
 /**
  * The class Main
  *
+ 
  * @Author Bartosz Biernacki, Piotr Machura
  **/
 public class Main {
 
     // The calculation parameters
-    static double mu = 0, t = 0, g = 1;
+    final static double mu = 0, t = 0, g = 1;
     // 'Close enough' to a zero (name 'epsilon' is taken)
-    static double small = 1e-9;
+    final static double small = 1e-9;
+    // Our line space
+    final static double dx = 1e-6;
+    final static int nX = 2 * (int) (1e10 * dx);
 
     static double epsilonK(double k) {
         // Who cares about Plancks constant (or mass)?
@@ -19,11 +23,11 @@ public class Main {
     }
 
     static double uK(double k, double ek) {
-        return Math.sqrt(1 / 2 * (1 + (epsilonK(k) - mu) / ek));
+        return 1 / 2 * (1 + (epsilonK(k) - mu) / ek);
     }
 
     static double vK(double k, double ek) {
-        return Math.sqrt(1 / 2 * (1 + (epsilonK(k) + mu) / ek));
+        return 1 / 2 * (1 - (epsilonK(k) - mu) / ek);
     }
 
     static double calcDelta(ArrayList<Double> ks, ArrayList<Double> eks) {
@@ -39,7 +43,7 @@ public class Main {
 
     static double eK(double delta, double k) {
         // The formula as stated (I hope)
-        return Math.sqrt(delta * delta + (epsilonK(k) - mu) * (epsilonK(k) - mu));
+        return delta * delta + (epsilonK(k) - mu) * (epsilonK(k) - mu);
     }
 
     static double fermiDirac(double e) {
@@ -48,7 +52,7 @@ public class Main {
         return 1 / denominator;
     }
 
-    static void main(String[] args) {
+    public static void main(String[] args) {
         System.out.println(FixedPoint.findRoot(0.0001));
         // Take a guess
         double delta = 1;
@@ -58,12 +62,22 @@ public class Main {
             ArrayList<Double> ks = new ArrayList<Double>();
             ArrayList<Double> eks = new ArrayList<Double>();
             // calculate the ek's and k's
-            for (double k = 0; k < 10; k += 0.1) {
+            for (int i = 0; i < nX; i++) {
+                // Shamelessly ripped from the script
+                double kX = 2 * Math.PI / (nX * dx);
+                if (i <= nX / 2) {
+                    kX *= i;
+                } else {
+                    kX *= (i - nX);
+                }
+                // kY and kZ are the same
+                double k = Math.sqrt(3 * kX * kX);
                 ks.add(k);
                 eks.add(eK(delta, k));
             }
             // Get our new delta
             delta = calcDelta(eks, ks);
+            System.out.println(delta);
             if (Math.abs(deltaPrev - delta) < small) {
                 // We have converged - done
                 break;
