@@ -1,3 +1,6 @@
+import staticFunctions.FixedPoint;
+
+
 /**
  * The class Main
  *
@@ -24,6 +27,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        System.out.println(FixedPoint.findRoot(0.0001));
         // Looking for this
         double e = 1;
         double delta;
