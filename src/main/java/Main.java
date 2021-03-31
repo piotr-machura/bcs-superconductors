@@ -4,7 +4,7 @@ import java.util.ArrayList;
 /**
  * The class Main
  *
- 
+ *
  * @Author Bartosz Biernacki, Piotr Machura
  **/
 public class Main {
@@ -14,20 +14,20 @@ public class Main {
     // 'Close enough' to a zero (name 'epsilon' is taken)
     final static double small = 1e-9;
     // Our line space
-    final static double dx = 1e-6;
-    final static int nX = 2 * (int) (1e10 * dx);
+    final static double dx = 1e-4;
+    final static int nX = 2 * (int) 1e4;
 
     static double epsilonK(double k) {
         // Who cares about Plancks constant (or mass)?
-        return k * k / 2;
+        return 0.5 * k * k;
     }
 
     static double uK(double k, double ek) {
-        return 1 / 2 * (1 + (epsilonK(k) - mu) / ek);
+        return Math.sqrt(0.5 * (1 + (epsilonK(k) - mu) / ek));
     }
 
     static double vK(double k, double ek) {
-        return 1 / 2 * (1 - (epsilonK(k) - mu) / ek);
+        return Math.sqrt(0.5 * (1 - (epsilonK(k) - mu) / ek));
     }
 
     static double calcDelta(ArrayList<Double> ks, ArrayList<Double> eks) {
@@ -36,14 +36,14 @@ public class Main {
         for (int i = 0; i < ks.size(); i++) {
             double k = ks.get(i);
             double ek = eks.get(i);
-            sum += uK(k, ek) * vK(k, ek) * 1 / 2 * (fermiDirac(ek) - fermiDirac(-ek));
+            sum += uK(k, ek) * vK(k, ek) * 0.5 * (fermiDirac(ek) - fermiDirac(-ek));
         }
         return g * g * sum;
     }
 
     static double eK(double delta, double k) {
         // The formula as stated (I hope)
-        return delta * delta + (epsilonK(k) - mu) * (epsilonK(k) - mu);
+        return Math.sqrt(delta * delta + (epsilonK(k) - mu) * (epsilonK(k) - mu));
     }
 
     static double fermiDirac(double e) {
@@ -76,7 +76,7 @@ public class Main {
                 eks.add(eK(delta, k));
             }
             // Get our new delta
-            delta = calcDelta(eks, ks);
+            delta = calcDelta(ks, eks);
             System.out.println(delta);
             if (Math.abs(deltaPrev - delta) < small) {
                 // We have converged - done
