@@ -34,6 +34,8 @@ public class Main {
             double k = ks.get(i);
             double ek = eks.get(i);
             sum += uK(k, ek) * vK(k, ek) * 0.5 * (fermiDirac(ek) - fermiDirac(-ek));
+            System.out.println("fermiDirac(ek ) = " + fermiDirac(ek));
+            System.out.println("fermiDirac(-ek) = " + fermiDirac(-ek));
         }
         return g * g * sum;
     }
