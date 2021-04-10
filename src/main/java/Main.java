@@ -44,11 +44,12 @@ public class Main {
     
     public static void main(String[] args) {
         // Take a guess
+    	double N = 100;
         double delta = 1;
         double deltaPrev = delta + 1e5; // Not to trigger the stop condition immediately
         int iterations =0;
         
-     // calculate the k's
+     // calculate the k's (needed only once)
         ArrayList<Double> ks = new ArrayList<Double>();
         for (int i = 0; i < nX; i++) 
         {
@@ -63,21 +64,24 @@ public class Main {
             ks.add(k);
         }
         
-        //Delta is calculated in thjs loop
+        //Delta is calculated in this loop
         while (true)
         {
             // We need those for the delta
             ArrayList<Double> Eks = new ArrayList<Double>();
-            // calculate the Ek's 
+            double N_sum = 0;
+            // calculate the Ek's and Number of particles 
             for (int i = 0; i < ks.size(); i++) 
             {
                 Eks.add(eK(delta, ks.get(i)));
+                N_sum += vK(ks.get(i), Eks.get(i)) * vK(ks.get(i), Eks.get(i)) * fermiDirac(-Eks.get(i))  + uK(ks.get(i), Eks.get(i)) * uK(ks.get(i), Eks.get(i)) * fermiDirac(Eks.get(i))  ;
             }
+            N = N_sum;
             // Get our new delta
             delta = calcDelta(ks, Eks);
             iterations ++;
       
-            System.out.println(delta);
+            System.out.println("Delta = " + delta + "    #particels  = " + N);
             if (Math.abs(deltaPrev - delta) < small) 
             {
                 // We have converged - done
