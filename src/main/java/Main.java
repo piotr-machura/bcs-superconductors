@@ -51,7 +51,7 @@ public class Main {
         double deltaPrev = delta + 1e5; // Not to trigger the stop condition immediately
         int iterations = 0;
         
-     // calculate the k's (needed only once)
+     // calculate the k's (needed only one per one delta )
         ArrayList<Double> ks = new ArrayList<Double>();
         for (int i = 0; i < nX; i++) 
         {
@@ -144,7 +144,7 @@ public class Main {
     		Ts.add(T);
     		deltas.add(calcDeltaUntillConvergence(mass, mu, T));
     		
-    		if(deltas.get(i)<=0.0001)									//Delta is almost zero --> break  // Tc value is highly dependent on numerucal zero
+    		if(deltas.get(i)<=0.000001)									//Delta is almost zero --> break  // Tc value is highly dependent on numerucal zero
     		{															//for 0=1e-8 -->Tc = 0.1409,    for 0=1e-10 -->Tc = 0.6395,   for 0=1e-10 -->Tc = 6.0335,  for 0=0 -->Tc = 239140.76
     			System.out.println("For T = " + T + " delta <= 0");		//Because delta(T=0)=0.26 I've decided that 0.0001 is zero enough
     			System.out.println("Checked " + i + " different temperatures to match.");
