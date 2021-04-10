@@ -25,7 +25,7 @@ public class Main {
        
     static double vK(double k, double Ek, double mass, double mu)		{ return Math.sqrt(0.5 * (1.0 -( (epsilonK(k, mass) - mu)/Ek) ));}
         
-    static double eK(double delta, double k, double mass, double mu)	{ return Math.sqrt(delta * delta + (epsilonK(k, mass) - mu) * (epsilonK(k, mass) - mu));}
+    static double Ek(double delta, double k, double mass, double mu)	{ return Math.sqrt(delta * delta + (epsilonK(k, mass) - mu) * (epsilonK(k, mass) - mu));}
        
     static double fermiDirac(double E, double mu, double T) 			{ return  1.0 / (1.0 + Math.exp( (E-mu)/(Boltzman_constant*T) ));}
     
@@ -44,13 +44,7 @@ public class Main {
 
     
     static double calcDeltaUntillConvergence(double mass, double mu, double T)
-    {
-        // Take a guess
-    	double N = 100;
-        double delta = 1;
-        double deltaPrev = delta + 1e5; // Not to trigger the stop condition immediately
-        int iterations = 0;
-        
+    {   
      // calculate the k's (needed only one per one delta )
         ArrayList<Double> ks = new ArrayList<Double>();
         for (int i = 0; i < nX; i++) 
@@ -66,6 +60,12 @@ public class Main {
             ks.add(k);
         }
         
+        // Take a guess
+    	double N = 1.0;
+        double delta = 1.0;
+        double deltaPrev = delta + 1e5; // Not to trigger the stop condition immediately
+        int iterations = 0;
+        
         //Delta is calculated in this loop
         while (true)
         {
@@ -75,9 +75,11 @@ public class Main {
             // calculate the Ek's and Number of particles 
             for (int i = 0; i < ks.size(); i++) 
             {
-                Eks.add(eK(delta, ks.get(i), mass, mu));
+                Eks.add(Ek(delta, ks.get(i), mass, mu));
                 N_sum += vK(ks.get(i), Eks.get(i), mass, mu) * vK(ks.get(i), Eks.get(i), mass, mu) * fermiDirac(-Eks.get(i), mu, T)  + uK(ks.get(i), Eks.get(i), mass, mu) * uK(ks.get(i), Eks.get(i), mass, mu) * fermiDirac(Eks.get(i), mu, T)  ;
             }
+           
+           //mu = mu + 0.1*(N - N_sum);	//beta = 0.1		//mixed step, but not working, after 2 iterations Ek.get(1) = NaN
             N = N_sum;
             // Get our new delta
             delta = calcDeltaOnce(ks, Eks, mass, mu, T);
@@ -143,6 +145,7 @@ public class Main {
     		T = T*1.05;
     		Ts.add(T);
     		deltas.add(calcDeltaUntillConvergence(mass, mu, T));
+    		System.out.println(i + "Sukces for T = " + Ts.get(i));
     		
     		if(deltas.get(i)<=0.000001)									//Delta is almost zero --> break  // Tc value is highly dependent on numerucal zero
     		{															//for 0=1e-8 -->Tc = 0.1409,    for 0=1e-10 -->Tc = 0.6395,   for 0=1e-10 -->Tc = 6.0335,  for 0=0 -->Tc = 239140.76
