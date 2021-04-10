@@ -125,24 +125,31 @@ public class Main {
     }
 
 
+    static void verifyIfProperRatioWasAchived(double mass, double mu, double Tc) 
+    {
+		double ratio = calcDeltaUntillConvergence(mass, mu, 1e-10) / Tc;	//1e-10 is reasonably zero
+		System.out.println("Ratio delta(T=0) / Tc supposed to be 1.76. In our case it is " + ratio);
+
+	}
 
     
     public static void main(String[] args) 
     {
     	ArrayList<Double> Ts = new ArrayList<Double>();
     	ArrayList<Double> deltas = new ArrayList<Double>();
-    	double T = 1e-6;		//T_0 = almost zero
+    	double mass = 1.0, mu = 1e-6, T = 1e-6;		//T_0 = almost zero
     	for (int i=0; i<1e7; i++)
     	{
     		T = T*1.05;
     		Ts.add(T);
-    		deltas.add(calcDeltaUntillConvergence(1.0, 1e-6, T));		//mass, mu, T
+    		deltas.add(calcDeltaUntillConvergence(mass, mu, T));
     		
-    		if(deltas.get(i)<=0.00001)									//Delta is almost zero --> break  // Tc value is highly dependent on numerucal zero
+    		if(deltas.get(i)<=0.0001)									//Delta is almost zero --> break  // Tc value is highly dependent on numerucal zero
     		{															//for 0=1e-8 -->Tc = 0.1409,    for 0=1e-10 -->Tc = 0.6395,   for 0=1e-10 -->Tc = 6.0335,  for 0=0 -->Tc = 239140.76
-    			System.out.println("For T = " + T + " delta <= 0");		//Because delta(T=0)=0.26 I've decided that 0.00001 is zero enough
+    			System.out.println("For T = " + T + " delta <= 0");		//Because delta(T=0)=0.26 I've decided that 0.0001 is zero enough
     			System.out.println("Checked " + i + " different temperatures to match.");
     			plotDeltaVsTemperature(deltas, Ts);
+    			verifyIfProperRatioWasAchived(mass, mu, T);
     			break;
     		}
     		
