@@ -18,7 +18,40 @@ public class Main {
     final static double almostZero = 1e-4;
     // Our line space
     final static double dx = 1e-4;
-    final static int nX = 2 * (int) 1e4;
+    final static int nX = 6 * (int) 1e1;
+    static ArrayList<Double> ks;
+
+    static void establishKs() {
+        // calculate the k's (needed only once)
+        ArrayList<Double> ks = new ArrayList<Double>();
+        for (int ix = 0; ix < nX; ix++) {
+            double kX = 2 * Math.PI / (nX * dx);
+            if (ix <= nX / 2) {
+                kX *= ix;
+            } else {
+                kX *= (ix - nX);
+            }
+            for (int iy = 0; iy < nX; iy++) {
+                double kY = 2 * Math.PI / (nX * dx);
+                if (iy <= nX / 2) {
+                    kY *= iy;
+                } else {
+                    kY *= (iy - nX);
+                }
+                for (int iz = 0; iz < nX; iz++) {
+                    double kZ = 2 * Math.PI / (nX * dx);
+                    if (iz <= nX / 2) {
+                        kZ *= iz;
+                    } else {
+                        kZ *= (iz - nX);
+                    }
+                    double k = Math.sqrt(kX * kX + kY * kY + kZ * kZ);
+                    ks.add(k);
+                }
+            }
+        }
+        Main.ks = ks;
+    }
 
     static double epsilonK(double k, double mass) {
         return (h_bar * h_bar * k * k) / (2 * mass);
@@ -61,19 +94,6 @@ public class Main {
     }
 
     static double convergeDelta(double mass, double mu, double T) {
-        // calculate the k's (needed only one per one delta )
-        ArrayList<Double> ks = new ArrayList<Double>();
-        for (int i = 0; i < nX; i++) {
-            double kX = 2 * Math.PI / (nX * dx);
-            if (i <= nX / 2) {
-                kX *= i;
-            } else {
-                kX *= (i - nX);
-            }
-            // kY and kZ are the same
-            double k = Math.sqrt(3 * kX * kX);
-            ks.add(k);
-        }
 
         // Take a guess
         double delta = 1.0;
@@ -140,6 +160,7 @@ public class Main {
         ArrayList<Double> Ts = new ArrayList<Double>();
         ArrayList<Double> deltas = new ArrayList<Double>();
         double mass = 1.0, mu = 1e-6, T = 1e-6; // T_0 = almost zero
+        establishKs();
         for (int i = 0; i < 1e7; i++) {
             T = T * 1.05;
             Ts.add(T);
