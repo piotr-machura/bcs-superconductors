@@ -14,7 +14,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 public class Main {
     // The calculation parameters
     final static double g = 1.0, h_bar = 1.0, Boltzman_constant = 1.0;
-    final static double deltaPrecision = 1e-9;
+    final static double deltaPrecision = 1e-6;
     final static double almostZero = 1e-4;
     // Our line space
     final static double dx = 1e-4;
@@ -71,7 +71,7 @@ public class Main {
                 kX *= (i - nX);
             }
             // kY and kZ are the same
-            double k = Math.sqrt(3 * kX * kX);
+            double k = Math.sqrt( 3* kX * kX );
             ks.add(k);
         }
 
@@ -90,8 +90,10 @@ public class Main {
             // Calculate the Ek's and Number of particles
             for (int i = 0; i < ks.size(); i++) {
                 eKs.add(eK(delta, ks.get(i), mass, mu));
-                newN += vK2(ks.get(i), eKs.get(i), mass, mu) * fermiDirac(-eKs.get(i), mu, T)
+                newN +=  vK2(ks.get(i), eKs.get(i), mass, mu) * fermiDirac(-eKs.get(i), mu, T)
                         + uK2(ks.get(i), eKs.get(i), mass, mu) * fermiDirac(eKs.get(i), mu, T);
+                
+              //newN += vK2(ks.get(i), eKs.get(i), mass, mu) - uK2(ks.get(i), eKs.get(i), mass, mu) +1;
             }
             // On the first iteration we don't know what the N is, so dont mix the mu yet
             if (iterations != 0) {
@@ -99,21 +101,26 @@ public class Main {
                 mu = mu + beta * (currentN - newN);
             }
             currentN = newN;
+            //System.out.println(currentN);
 
             // Get our new delta
             delta = calcDelta(ks, eKs, mass, mu, T);
             if (Math.abs(deltaPrev - delta) < deltaPrecision) {
                 // We have converged - done
+            	System.out.println("Delta converged after " + iterations + " to " + delta);
                 return delta;
             } else {
                 // Mixed step that should speed up convergence, but it doesn't
-                // double alpha = 0.25;
-                // deltaPrev = alpha * delta + (1 - alpha) * deltaPrev;
-                deltaPrev = delta;
+                 //double alpha = 0.5;
+                 //deltaPrev = alpha * delta + (1 - alpha) * deltaPrev;
+                 deltaPrev = delta;
                 iterations++;
+                if(iterations >500)
+                {
+                	// System.out.println(delta);
+                }
             }
         }
-
     }
 
     static void plotDelta(ArrayList<Double> deltas, ArrayList<Double> Ts) {
@@ -141,7 +148,7 @@ public class Main {
         ArrayList<Double> deltas = new ArrayList<Double>();
         double mass = 1.0, mu = 1e-6, T = 1e-6; // T_0 = almost zero
         for (int i = 0; i < 1e7; i++) {
-            T = T * 1.05;
+            T = T*1.01;
             Ts.add(T);
             deltas.add(convergeDelta(mass, mu, T));
             /*
