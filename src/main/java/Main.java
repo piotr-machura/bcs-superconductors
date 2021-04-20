@@ -14,11 +14,44 @@ import org.jfree.data.xy.XYSeriesCollection;
 public class Main {
     // The calculation parameters
     final static double g = 1.0, h_bar = 1.0, Boltzman_constant = 1.0;
-    final static double deltaPrecision = 1e-6;
+    final static double deltaPrecision = 1e-9;
     final static double almostZero = 1e-4;
     // Our line space
     final static double dx = 1e-4;
-    final static int nX = 2 * (int) 1e4;
+    final static int nX = 6 * (int) 1e1;
+    static ArrayList<Double> ks;
+
+    static void establishKs() {
+        // calculate the k's (needed only once)
+        ArrayList<Double> ks = new ArrayList<Double>();
+        for (int ix = 0; ix < nX; ix++) {
+            double kX = 2 * Math.PI / (nX * dx);
+            if (ix <= nX / 2) {
+                kX *= ix;
+            } else {
+                kX *= (ix - nX);
+            }
+            for (int iy = 0; iy < nX; iy++) {
+                double kY = 2 * Math.PI / (nX * dx);
+                if (iy <= nX / 2) {
+                    kY *= iy;
+                } else {
+                    kY *= (iy - nX);
+                }
+                for (int iz = 0; iz < nX; iz++) {
+                    double kZ = 2 * Math.PI / (nX * dx);
+                    if (iz <= nX / 2) {
+                        kZ *= iz;
+                    } else {
+                        kZ *= (iz - nX);
+                    }
+                    double k = Math.sqrt(kX * kX + kY * kY + kZ * kZ);
+                    ks.add(k);
+                }
+            }
+        }
+        Main.ks = ks;
+    }
 
     static double epsilonK(double k, double mass) {
         return (h_bar * h_bar * k * k) / (2 * mass);
@@ -61,19 +94,6 @@ public class Main {
     }
 
     static double convergeDelta(double mass, double mu, double T) {
-        // calculate the k's (needed only one per one delta )
-        ArrayList<Double> ks = new ArrayList<Double>();
-        for (int i = 0; i < nX; i++) {
-            double kX = 2 * Math.PI / (nX * dx);
-            if (i <= nX / 2) {
-                kX *= i;
-            } else {
-                kX *= (i - nX);
-            }
-            // kY and kZ are the same
-            double k = Math.sqrt( 3* kX * kX );
-            ks.add(k);
-        }
 
         // Take a guess
         double delta = 1.0;
@@ -90,10 +110,8 @@ public class Main {
             // Calculate the Ek's and Number of particles
             for (int i = 0; i < ks.size(); i++) {
                 eKs.add(eK(delta, ks.get(i), mass, mu));
-                newN +=  vK2(ks.get(i), eKs.get(i), mass, mu) * fermiDirac(-eKs.get(i), mu, T)
+                newN += vK2(ks.get(i), eKs.get(i), mass, mu) * fermiDirac(-eKs.get(i), mu, T)
                         + uK2(ks.get(i), eKs.get(i), mass, mu) * fermiDirac(eKs.get(i), mu, T);
-                
-              //newN += vK2(ks.get(i), eKs.get(i), mass, mu) - uK2(ks.get(i), eKs.get(i), mass, mu) +1;
             }
             // On the first iteration we don't know what the N is, so dont mix the mu yet
             if (iterations != 0) {
@@ -101,26 +119,21 @@ public class Main {
                 mu = mu + beta * (currentN - newN);
             }
             currentN = newN;
-            //System.out.println(currentN);
 
             // Get our new delta
             delta = calcDelta(ks, eKs, mass, mu, T);
             if (Math.abs(deltaPrev - delta) < deltaPrecision) {
                 // We have converged - done
-            	System.out.println("Delta converged after " + iterations + " to " + delta);
                 return delta;
             } else {
                 // Mixed step that should speed up convergence, but it doesn't
-                 //double alpha = 0.5;
-                 //deltaPrev = alpha * delta + (1 - alpha) * deltaPrev;
-                 deltaPrev = delta;
+                // double alpha = 0.25;
+                // deltaPrev = alpha * delta + (1 - alpha) * deltaPrev;
+                deltaPrev = delta;
                 iterations++;
-                if(iterations >500)
-                {
-                	// System.out.println(delta);
-                }
             }
         }
+
     }
 
     static void plotDelta(ArrayList<Double> deltas, ArrayList<Double> Ts) {
@@ -147,8 +160,9 @@ public class Main {
         ArrayList<Double> Ts = new ArrayList<Double>();
         ArrayList<Double> deltas = new ArrayList<Double>();
         double mass = 1.0, mu = 1e-6, T = 1e-6; // T_0 = almost zero
+        establishKs();
         for (int i = 0; i < 1e7; i++) {
-            T = T*1.01;
+            T = T * 1.05;
             Ts.add(T);
             deltas.add(convergeDelta(mass, mu, T));
             /*
