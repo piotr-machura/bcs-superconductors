@@ -141,11 +141,11 @@ public class Main {
     /**
      * Calculate the energy gap from parameters.
      *
-     * @param ks  the wave vectors.
+     * @param ks   the wave vectors.
      * @param eKs  the energies associated with wave vectors.
-     * @param mu the chemical potential.
+     * @param mu   the chemical potential.
      * @param mass the particle mass.
-     * @param T the temperature.
+     * @param T    the temperature.
      * @return the energy gap delta.
      **/
     static double calcDelta(ArrayList<Double> ks, ArrayList<Double> eKs, double mass, double mu, double T) {
@@ -159,6 +159,14 @@ public class Main {
         return sum;
     }
 
+    /**
+     * Calculate the energy gap until convergence.
+     *
+     * @param mu   the chemical potential.
+     * @param mass the particle mass.
+     * @param T    the temperature.
+     * @return the converged energy gap delta.
+     **/
     static double convergeDelta(double mass, double mu, double T) {
         // Take a guess
         double delta = 1.0;
@@ -186,10 +194,9 @@ public class Main {
 
             // Get our new delta
             delta = calcDelta(ks, eKs, mass, mu, T);
-            if (Math.abs(deltaPrev - delta) < deltaPrecision) 
-            {
+            if (Math.abs(deltaPrev - delta) < deltaPrecision) {
                 // We have converged - done
-            	System.out.println("Delta converged after " + iterations +"   to " + delta);
+                System.out.println("Delta converged after " + iterations + "   to " + delta);
                 return delta;
             } else {
                 // Mixed step that should speed up convergence, but it doesn't
@@ -202,7 +209,13 @@ public class Main {
 
     }
 
-    static void plotDelta(ArrayList<Double> deltas, ArrayList<Double> Ts) {
+    /**
+     * Draw the simulation plots.
+     *
+     * @param deltas the deltas corresponding the temperatures.
+     * @param T      the temperatures.
+     **/
+    static void drawPlots(ArrayList<Double> deltas, ArrayList<Double> Ts) {
         // Construct the graph series
         XYSeries xySeries = new XYSeries("Delta vs T");
         for (int i = 0; i < deltas.size(); i++) {
@@ -230,7 +243,7 @@ public class Main {
             if (deltas.get(i) <= almostZero) {
                 System.out.println("For T = " + T + " delta ~ 0");
                 System.out.println("Checked " + i + " different temperatures to match.");
-                plotDelta(deltas, Ts);
+                drawPlots(deltas, Ts);
                 double ratio = deltas.get(0) / T;
                 System.out.println("Ratio delta(T=0) / Tc supposed to be 1.76. In our case it is " + ratio);
                 break;
