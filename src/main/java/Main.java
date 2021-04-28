@@ -8,7 +8,6 @@ import org.jfree.data.xy.XYSeriesCollection;
 /**
  * The class Main
  *
- *
  * @Author Bartosz Biernacki, Piotr Machura
  **/
 public class Main {
@@ -19,9 +18,15 @@ public class Main {
     // Our line space
     final static double dx = 1e-4;
     final static int nX = 6 * (int) 1e1;
-    static ArrayList<Double> ks;
+    static ArrayList<Double> ks = establishKs();
 
-    static void establishKs() {
+    /**
+     * Establishes the wave vector grid used in the calculations. Only needed once
+     * per simulation.
+     *
+     * @return Array containing wave vector lengths at each point in the grid.
+     **/
+    static ArrayList<Double> establishKs() {
         // calculate the k's (needed only once)
         ArrayList<Double> ks = new ArrayList<Double>();
         for (int ix = 0; ix < nX; ix++) {
@@ -50,21 +55,55 @@ public class Main {
                 }
             }
         }
-        Main.ks = ks;
+        return ks;
     }
 
+    /**
+     * Calculate the kinetic energy from wave vector k.
+     *
+     * @param k    the wave vector.
+     * @param mass the mass of the particle.
+     * @return the epsilonK.
+     **/
     static double epsilonK(double k, double mass) {
         return (h_bar * h_bar * k * k) / (2 * mass);
     }
 
+    /**
+     * Calculate the square of the u wave function.
+     *
+     * @param k    the wave vector.
+     * @param Ek   the energy associated with wave vector k.
+     * @param mass the mass of the particle.
+     * @param mu   the chemical potential.
+     * @return the uK^2
+     **/
     static double uK2(double k, double Ek, double mass, double mu) {
         return 0.5 * (1.0 + ((epsilonK(k, mass) - mu) / Ek));
     }
 
+    /**
+     * Calculate the square of the v wave function.
+     *
+     * @param k    the wave vector.
+     * @param Ek   the energy associated with wave vector k.
+     * @param mass the mass of the particle.
+     * @param mu   the chemical potential.
+     * @return the vK^2.
+     **/
     static double vK2(double k, double Ek, double mass, double mu) {
         return 0.5 * (1.0 - ((epsilonK(k, mass) - mu) / Ek));
     }
 
+    /**
+     * Calculate the product of the u and v wave functions.
+     *
+     * @param k    the wave vector.
+     * @param Ek   the energy associated with wave vector k.
+     * @param mass the mass of the particle.
+     * @param mu   the chemical potential.
+     * @return the product uk*vk.
+     **/
     static double uKvK(double k, double Ek, double mass, double mu) {
         double underSqrt = 0.25 * (1.0 - ((epsilonK(k, mass) - mu) / Ek)) * (1.0 + ((epsilonK(k, mass) - mu) / Ek));
         // Guard ourselves against nasty NaNs
@@ -74,34 +113,59 @@ public class Main {
         return Math.sqrt(underSqrt);
     }
 
+    /**
+     * Calculate the energy associated with wave vector k.
+     *
+     * @param delta the energy gap
+     * @param k     the wave vector.
+     * @param mass  the mass of the particle.
+     * @param mu    the chemical potential.
+     * @return the energy Ek.
+     **/
     static double eK(double delta, double k, double mass, double mu) {
         return Math.sqrt(delta * delta + (epsilonK(k, mass) - mu) * (epsilonK(k, mass) - mu));
     }
 
+    /**
+     * Calculate the energy associated with wave vector k.
+     *
+     * @param E  the energy.
+     * @param T  the temperature.
+     * @param mu the chemical potential.
+     * @return the value of Fermi-Dirac function.
+     **/
     static double fermiDirac(double E, double mu, double T) {
         return 1.0 / (1.0 + Math.exp((E - mu) / (Boltzman_constant * T)));
     }
 
-    static double calcDelta(ArrayList<Double> ks, ArrayList<Double> Eks, double mass, double mu, double T) {
+    /**
+     * Calculate the energy gap from parameters.
+     *
+     * @param ks  the wave vectors.
+     * @param eKs  the energies associated with wave vectors.
+     * @param mu the chemical potential.
+     * @param mass the particle mass.
+     * @param T the temperature.
+     * @return the energy gap delta.
+     **/
+    static double calcDelta(ArrayList<Double> ks, ArrayList<Double> eKs, double mass, double mu, double T) {
         // Arrays are needed for the summing
         double sum = 0;
         for (int i = 0; i < ks.size(); i++) {
             double k = ks.get(i);
-            double Ek = Eks.get(i);
-            sum += g * (uKvK(k, Ek, mass, mu) * 0.5 * (fermiDirac(-Ek, mu, T) - fermiDirac(Ek, mu, T)));
+            double eK = eKs.get(i);
+            sum += g * (uKvK(k, eK, mass, mu) * 0.5 * (fermiDirac(-eK, mu, T) - fermiDirac(eK, mu, T)));
         }
         return sum;
     }
 
     static double convergeDelta(double mass, double mu, double T) {
-
         // Take a guess
         double delta = 1.0;
         double deltaPrev = delta + 1e5; // Not to trigger the stop condition immediately
         // Helpful later
         double currentN = 0;
         int iterations = 0;
-
         // Delta is calculated in this loop
         while (true) {
             // Get the energies
@@ -152,10 +216,6 @@ public class Main {
         frame1.setSize(500, 400);
     }
 
-    static void verifyRatio(double mass, double mu, double Tc) {
-
-    }
-
     public static void main(String[] args) {
         ArrayList<Double> Ts = new ArrayList<Double>();
         ArrayList<Double> deltas = new ArrayList<Double>();
@@ -165,20 +225,14 @@ public class Main {
             T = T * 1.05;
             Ts.add(T);
             deltas.add(convergeDelta(mass, mu, T));
-            /*
-             * Delta is almost zero --> break Tc value is highly dependent on numerucal zero
-             * for 0=1e-8 -->Tc = 0.1409, for 0=1e-10 -->Tc = 0.6395, for 0=1e-10 -->Tc =
-             * 6.0335, for 0=0 -->Tc = 239140.76
-             */
             if (deltas.get(i) <= almostZero) {
-                System.out.println("For T = " + T + " delta <= 0");
+                System.out.println("For T = " + T + " delta ~ 0");
                 System.out.println("Checked " + i + " different temperatures to match.");
                 plotDelta(deltas, Ts);
-                double ratio = convergeDelta(mass, mu, almostZero) / T;
+                double ratio = deltas.get(0) / T;
                 System.out.println("Ratio delta(T=0) / Tc supposed to be 1.76. In our case it is " + ratio);
                 break;
             }
-
         }
     }
 }
