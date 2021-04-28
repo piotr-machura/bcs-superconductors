@@ -138,13 +138,12 @@ public class Main {
     /**
      * Calculate the energy gap from parameters.
      *
-     * @param ks  the wave vectors.
      * @param eKs the energies associated with wave vectors.
      * @param mu  the chemical potential.
      * @param T   the temperature.
      * @return the energy gap delta.
      **/
-    static double calcDelta(ArrayList<Double> ks, ArrayList<Double> eKs, double mu, double T) {
+    static double calcDelta(ArrayList<Double> eKs, double mu, double T) {
         // Arrays are needed for the summing
         double sum = 0;
         for (int i = 0; i < ks.size(); i++) {
@@ -188,7 +187,7 @@ public class Main {
             currentN = newN;
 
             // Get our new delta
-            delta = calcDelta(ks, eKs, mu, T);
+            delta = calcDelta(eKs, mu, T);
             if (Math.abs(deltaPrev - delta) < deltaPrecision) {
                 // We have converged - done
                 System.out.printf("T: %.6f\tDelta: %.6f\t\t[took %d iterations]%n", T, delta, iterations);
@@ -260,7 +259,7 @@ public class Main {
                 System.out.println("Checked " + i + " different temperatures.");
                 drawPlots(deltas, Ts);
                 double ratio = deltas.get(0) / T;
-                System.out.printf("Ratio delta(T=0) / Tc: %.6f", ratio);
+                System.out.printf("Ratio delta(T=0) / Tc: %.6f%n", ratio);
                 break;
             }
         }
