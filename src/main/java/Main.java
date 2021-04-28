@@ -13,7 +13,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 public class Main {
     // The calculation parameters
     final static double g = 1.0, h_bar = 1.0, Boltzman_constant = 1.0;
-    final static double deltaPrecision = 1e-9;
+    final static double deltaPrecision = 1e-6;
     final static double almostZero = 1e-4;
     // Our line space
     final static double dx = 1e-4;
@@ -186,8 +186,10 @@ public class Main {
 
             // Get our new delta
             delta = calcDelta(ks, eKs, mass, mu, T);
-            if (Math.abs(deltaPrev - delta) < deltaPrecision) {
+            if (Math.abs(deltaPrev - delta) < deltaPrecision) 
+            {
                 // We have converged - done
+            	System.out.println("Delta converged after " + iterations +"   to " + delta);
                 return delta;
             } else {
                 // Mixed step that should speed up convergence, but it doesn't
