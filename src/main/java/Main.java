@@ -12,41 +12,40 @@ import org.jfree.data.xy.XYSeriesCollection;
  **/
 public class Main {
     // The calculation parameters
-    final static double g = 1.0, h_bar = 1.0, Boltzman_constant = 1.0;
+    final static double gCoefficient = 1.0, hBar = 1.0, kBoltzmannn = 1.0, mass = 1.0;
     final static double deltaPrecision = 1e-6;
-    final static double almostZero = 1e-4;
-    // Our line space
-    final static double dx = 1e-4;
-    final static int nX = 6 * (int) 1e1;
-    static ArrayList<Double> ks = establishKs();
+    final static double deltaAlmostZero = 1e-4;
+    // Spatial grid
+    final static double dX = 1e-4;
+    final static int nX = 1 * (int) 1e2;
+    static ArrayList<Double> kGrid = getKGrid();
+    // Other parameters
     static double nParticles = 0;
-    static double mass = 1;
 
     /**
-     * Establishes the wave vector grid used in the calculations. Only needed once
-     * per simulation.
+     * Establish the wave vector grid used in the calculations. Only needed once per
+     * simulation.
      *
-     * @return Array containing wave vector lengths at each point in the grid.
-     **/
-    static ArrayList<Double> establishKs() {
-        // calculate the k's (needed only once)
+     * @return array containing wave vector lengths at each point in the grid.
+     */
+    static ArrayList<Double> getKGrid() {
         ArrayList<Double> ks = new ArrayList<Double>();
         for (int ix = 0; ix < nX; ix++) {
-            double kX = 2 * Math.PI / (nX * dx);
+            double kX = 2 * Math.PI / (nX * dX);
             if (ix <= nX / 2) {
                 kX *= ix;
             } else {
                 kX *= (ix - nX);
             }
             for (int iy = 0; iy < nX; iy++) {
-                double kY = 2 * Math.PI / (nX * dx);
+                double kY = 2 * Math.PI / (nX * dX);
                 if (iy <= nX / 2) {
                     kY *= iy;
                 } else {
                     kY *= (iy - nX);
                 }
                 for (int iz = 0; iz < nX; iz++) {
-                    double kZ = 2 * Math.PI / (nX * dx);
+                    double kZ = 2 * Math.PI / (nX * dX);
                     if (iz <= nX / 2) {
                         kZ *= iz;
                     } else {
@@ -65,45 +64,45 @@ public class Main {
      *
      * @param k the wave vector.
      * @return the epsilonK.
-     **/
+     */
     static double epsilonK(double k) {
-        return (h_bar * h_bar * k * k) / (2 * mass);
+        return (hBar * hBar * k * k) / (2 * mass);
     }
 
     /**
      * Calculate the square of the u wave function.
      *
      * @param k  the wave vector.
-     * @param Ek the energy associated with wave vector k.
+     * @param eK the energy associated with wave vector k.
      * @param mu the chemical potential.
      * @return the uK^2
-     **/
-    static double uK2(double k, double Ek, double mu) {
-        return 0.5 * (1.0 + ((epsilonK(k) - mu) / Ek));
+     */
+    static double uK2(double k, double eK, double mu) {
+        return 0.5 * (1.0 + ((epsilonK(k) - mu) / eK));
     }
 
     /**
      * Calculate the square of the v wave function.
      *
      * @param k  the wave vector.
-     * @param Ek the energy associated with wave vector k.
+     * @param eK the energy associated with wave vector k.
      * @param mu the chemical potential.
      * @return the vK^2.
-     **/
-    static double vK2(double k, double Ek, double mu) {
-        return 0.5 * (1.0 - ((epsilonK(k) - mu) / Ek));
+     */
+    static double vK2(double k, double eK, double mu) {
+        return 0.5 * (1.0 - ((epsilonK(k) - mu) / eK));
     }
 
     /**
      * Calculate the product of the u and v wave functions.
      *
      * @param k  the wave vector.
-     * @param Ek the energy associated with wave vector k.
+     * @param eK the energy associated with wave vector k.
      * @param mu the chemical potential.
      * @return the product uk*vk.
-     **/
-    static double uKvK(double k, double Ek, double mu) {
-        double underSqrt = 0.25 * (1.0 - ((epsilonK(k) - mu) / Ek)) * (1.0 + ((epsilonK(k) - mu) / Ek));
+     */
+    static double uKvK(double k, double eK, double mu) {
+        double underSqrt = 0.25 * (1.0 - ((epsilonK(k) - mu) / eK)) * (1.0 + ((epsilonK(k) - mu) / eK));
         // Guard ourselves against nasty NaNs
         if (Math.abs(underSqrt) < 1e-4) {
             underSqrt = 0;
@@ -118,7 +117,7 @@ public class Main {
      * @param k     the wave vector.
      * @param mu    the chemical potential.
      * @return the energy Ek.
-     **/
+     */
     static double eK(double delta, double k, double mu) {
         return Math.sqrt(delta * delta + (epsilonK(k) - mu) * (epsilonK(k) - mu));
     }
@@ -130,9 +129,9 @@ public class Main {
      * @param T  the temperature.
      * @param mu the chemical potential.
      * @return the value of Fermi-Dirac function.
-     **/
+     */
     static double fermiDirac(double E, double mu, double T) {
-        return 1.0 / (1.0 + Math.exp((E - mu) / (Boltzman_constant * T)));
+        return 1.0 / (1.0 + Math.exp((E - mu) / (kBoltzmannn * T)));
     }
 
     /**
@@ -142,14 +141,14 @@ public class Main {
      * @param mu  the chemical potential.
      * @param T   the temperature.
      * @return the energy gap delta.
-     **/
+     */
     static double calcDelta(ArrayList<Double> eKs, double mu, double T) {
         // Arrays are needed for the summing
         double sum = 0;
-        for (int i = 0; i < ks.size(); i++) {
-            double k = ks.get(i);
+        for (int i = 0; i < kGrid.size(); i++) {
+            double k = kGrid.get(i);
             double eK = eKs.get(i);
-            sum += g * (uKvK(k, eK, mu) * 0.5 * (fermiDirac(-eK, mu, T) - fermiDirac(eK, mu, T)));
+            sum += gCoefficient * (uKvK(k, eK, mu) * 0.5 * (fermiDirac(-eK, mu, T) - fermiDirac(eK, mu, T)));
         }
         return sum;
     }
@@ -160,7 +159,7 @@ public class Main {
      * @param mu the chemical potential.
      * @param T  the temperature.
      * @return the converged energy gap delta.
-     **/
+     */
     static double convergeDelta(double mu, double T) {
         // Take a guess
         double delta = 1.0;
@@ -174,10 +173,10 @@ public class Main {
             ArrayList<Double> eKs = new ArrayList<Double>();
             double newN = 0;
             // Calculate the Ek's and Number of particles
-            for (int i = 0; i < ks.size(); i++) {
-                eKs.add(eK(delta, ks.get(i), mu));
-                newN += vK2(ks.get(i), eKs.get(i), mu) * fermiDirac(-eKs.get(i), mu, T)
-                        + uK2(ks.get(i), eKs.get(i), mu) * fermiDirac(eKs.get(i), mu, T);
+            for (int i = 0; i < kGrid.size(); i++) {
+                eKs.add(eK(delta, kGrid.get(i), mu));
+                newN += vK2(kGrid.get(i), eKs.get(i), mu) * fermiDirac(-eKs.get(i), mu, T)
+                        + uK2(kGrid.get(i), eKs.get(i), mu) * fermiDirac(eKs.get(i), mu, T);
             }
             // On the first iteration we don't know what the N is, so dont mix the mu yet
             if (iterations != 0) {
@@ -212,15 +211,15 @@ public class Main {
      *
      * @param deltas the deltas corresponding the temperatures.
      * @param T      the temperatures.
-     **/
+     */
     static void drawPlots(ArrayList<Double> deltas, ArrayList<Double> Ts) {
         // Construct the graph series
         XYSeries deltaTSeries = new XYSeries("Delta vs T");
         for (int i = 0; i < deltas.size(); i++) {
             deltaTSeries.add(Ts.get(i), deltas.get(i));
         }
-        double volume = Math.pow(nX * dx, 3);
-        double fermiE = h_bar * h_bar / (2 * mass);
+        double volume = Math.pow(nX * dX, 3);
+        double fermiE = hBar * hBar / (2 * mass);
         fermiE *= Math.pow(3 * Math.PI * Math.PI * nParticles / volume, (double) 2 / 3);
         XYSeries fermiDeltaTSeries = new XYSeries("Delta / Fermi energy vs T");
         for (int i = 0; i < deltas.size(); i++) {
@@ -249,12 +248,12 @@ public class Main {
         double mu = 1e-6, T = 1e-6; // T_0 = almost zero
         System.out.println("BEGIN SIMULATION");
         System.out.println("----------------");
-        establishKs();
+        getKGrid();
         for (int i = 0; i < 1e7; i++) {
             T = T * 1.05;
             Ts.add(T);
             deltas.add(convergeDelta(mu, T));
-            if (deltas.get(i) <= almostZero) {
+            if (deltas.get(i) <= deltaAlmostZero) {
                 System.out.printf("For T = %.6f delta ~ 0%n", T);
                 System.out.println("Checked " + i + " different temperatures.");
                 drawPlots(deltas, Ts);
