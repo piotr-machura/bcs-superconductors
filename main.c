@@ -14,7 +14,7 @@ int main(void) {
     for (uint64_t i = 0; i < T_MAX_STEPS; i++) {
         t *= T_MULTIPLIER;
         conv_outcome out = converge_delta(mu, t);
-        fprintf(output_file, "%f %f %f %ld\n", t, out.delta, out.n_particles, out.iterations);
+        fprintf(output_file, "%.8f %.8f %.8f %ld\n", t, out.delta, out.n_particles, out.iterations);
         if (out.delta <= DELTA_ZERO) {
             printf("\033[32;1m done \033[0m\n");
             break;
