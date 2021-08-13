@@ -1,9 +1,5 @@
-lib
-FOLDER
-.envrc
-.metadata
-.project
-.settings
-.classpath
-target
-bin
+obj
+~*
+tags
+bcs
+res.txt
