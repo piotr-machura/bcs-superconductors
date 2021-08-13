@@ -18,4 +18,4 @@ bcs: $(OBJ)
 
 .PHONY: clean
 clean:
-	rm -rf $(ODIR) ./bcs *~ $(IDIR)/*~ 
+	rm -rf $(ODIR) ./bcs *~ $(IDIR)/*~
